@@ -1,7 +1,3 @@
-variable aws_version {
-    default = ">= 4.0"
-}
-
 variable "region" {
     type = string
     description = "Default Region for AWS Resources"
@@ -26,10 +22,22 @@ variable "public_subnet_cidr_blocks" {
     type = list(string)
     description = "Public Subnet CIDR block values"
 }
+
+variable "public_subnet_name_tag" {
+    type = string
+    description = "Public Subnet Name Tag"
+    default = "Public Subnet"
+}
  
 variable "private_subnet_cidr_blocks" {
     type = list(string)
     description = "Private Subnet CIDR block values"
+}
+
+variable "private_subnet_name_tag" {
+    type = string
+    description = "Private Subnet Name Tag"
+    default = "Private Subnet"
 }
 
 variable "availability_zones" {
