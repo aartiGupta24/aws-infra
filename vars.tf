@@ -113,7 +113,7 @@ variable "volume_type" {
 
 variable "aws_instance_name" {
   type        = string
-  description = "Name of instance"
+  description = "Name of instance"
 }
 
 variable "ami_name_pattern" {
