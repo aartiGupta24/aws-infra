@@ -48,6 +48,14 @@ We are going to start setting up our AWS infrastructure. This assignment will fo
    4. Create a public route table. Attach all public subnets created to the route table.
    5. Create a private route table. Attach all private subnets created to the route table.
    6. Create a public route in the public route table created above with the destination CIDR block 0.0.0.0/0 and the internet gateway created above as the target.
+   7. Create an EC2 security group for your EC2 instances that will host web applications.
+   8. Add ingress rule to allow TCP traffic on ports `22`, `80`, `443`, and `port` on which your application runs from anywhere in the world.
+   9. This security group will be referred to as the `application` security group.
+   10. Create an EC2 instance with the specifications mentioned in Assignment 04.
+   
+   <i><b>Note:</b>
+      - Application security group should be attached to this EC2 instance.
+      - Make sure the EBS volumes are terminated when EC2 instances are terminated.</i>
 
 2. Initialize the directory using - `terraform init` command.
 
