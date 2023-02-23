@@ -15,7 +15,7 @@ resource "aws_security_group" "webapp_sg" {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.public_route_cidr]
   }
 
   ingress {
