@@ -85,9 +85,14 @@ variable "IGW_tag" {
 }
 
 // ec2 variables
-variable "sg_name" {
+variable "webapp_sg_name" {
   type        = string
-  description = "Security group name"
+  description = "Security group name for application"
+}
+
+variable "db_sg_name" {
+  type        = string
+  description = "Security group name for DB"
 }
 
 variable "instance_type" {
@@ -117,5 +122,20 @@ variable "aws_instance_name" {
 }
 
 variable "ami_name_pattern" {
+  type = string
+}
+
+variable "db_instance_identifier" {
+  type = string
+}
+variable "db_name" {
+  type = string
+}
+
+variable "db_username" {
+  type = string
+}
+
+variable "db_password" {
   type = string
 }
