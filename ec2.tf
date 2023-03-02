@@ -7,55 +7,12 @@ data "aws_ami" "my_latest_ami" {
   }
 }
 
-resource "aws_security_group" "webapp_sg" {
-  name   = var.sg_name
-  vpc_id = module.vpc.vpc_id
-
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = [var.public_route_cidr]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [var.public_route_cidr]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.public_route_cidr]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [var.public_route_cidr]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [var.public_route_cidr]
-  }
-
-  tags = {
-    Name = "${var.sg_name}"
-  }
-}
-
 resource "aws_instance" "webapp_instance" {
-  ami           = data.aws_ami.my_latest_ami.id
-  instance_type = var.instance_type
-  key_name      = var.key_name
-  count         = 1
+  ami                  = data.aws_ami.my_latest_ami.id
+  instance_type        = var.instance_type
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  key_name             = var.key_name
+  count                = 1
 
   subnet_id                   = module.public_subnet.public_subnets[0].id
   vpc_security_group_ids      = [aws_security_group.webapp_sg.id]
@@ -65,8 +22,32 @@ resource "aws_instance" "webapp_instance" {
     volume_type = var.volume_type
     encrypted   = true
   }
-  disable_api_termination = true
+  disable_api_termination = false
+  user_data               = <<EOF
+  #!/bin/bash
 
+  # Redirect output to a log file
+  exec &> /var/log/user-data-logs.log
+
+  echo 'export HOST=${aws_db_instance.webapp_pg_instance.address}' >>/home/ec2-user/.bash_profile     
+  echo 'export PORT=5432' >>/home/ec2-user/.bash_profile   
+  echo 'export DB=${var.db_name}' >>/home/ec2-user/.bash_profile
+  echo 'export USER=${var.db_username}' >>/home/ec2-user/.bash_profile
+  echo 'export PASSWORD=${var.db_password}' >>/home/ec2-user/.bash_profile
+  echo 'export S3_BUCKET_NAME=${aws_s3_bucket.webapp_bucket.id}' >>/home/ec2-user/.bash_profile
+  echo 'export AWS_S3_REGION=${var.region}' >>/home/ec2-user/.bash_profile
+  echo 'export DIALECT=postgres' >>/home/ec2-user/.bash_profile
+
+  echo "Setting environment variables"
+  source /home/ec2-user/.bash_profile
+  EOF
+
+  depends_on = [
+    aws_iam_policy.webapp_s3_policy,
+    aws_iam_role.ec2_csye6225_role,
+    aws_iam_instance_profile.ec2_profile,
+    aws_db_instance.webapp_pg_instance
+  ]
   tags = {
     Name = "${var.aws_instance_name}"
   }
