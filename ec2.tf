@@ -25,27 +25,51 @@ resource "aws_instance" "webapp_instance" {
   disable_api_termination = false
   user_data               = <<EOF
   #!/bin/bash
-
+   
   # Redirect output to a log file
   exec &> /var/log/user-data-logs.log
 
-  echo 'export HOST=${aws_db_instance.webapp_pg_instance.address}' >>/home/ec2-user/.bash_profile     
-  echo 'export PORT=5432' >>/home/ec2-user/.bash_profile   
-  echo 'export DB=${var.db_name}' >>/home/ec2-user/.bash_profile
-  echo 'export USER=${var.db_username}' >>/home/ec2-user/.bash_profile
-  echo 'export PASSWORD=${var.db_password}' >>/home/ec2-user/.bash_profile
-  echo 'export S3_BUCKET_NAME=${aws_s3_bucket.webapp_bucket.id}' >>/home/ec2-user/.bash_profile
-  echo 'export AWS_S3_REGION=${var.region}' >>/home/ec2-user/.bash_profile
-  echo 'export DIALECT=postgres' >>/home/ec2-user/.bash_profile
+  cd /home/ec2-user/webapp/config
+  mv config.js config_bak.js
 
-  echo "Setting environment variables"
-  source /home/ec2-user/.bash_profile
+  echo "export default {
+    host: \"${aws_db_instance.webapp_pg_instance.address}\",
+    port: \"5432\",
+    username: \"${var.db_username}\",
+    password: \"${var.db_password}\",
+    database: \"${var.db_name}\",
+    dialect: \"postgres\",
+    regionS3: \"${var.region}\",
+    s3bucketName: \"${aws_s3_bucket.webapp_bucket.id}\"
+  };" > /home/ec2-user/webapp/config/config.js
+
+  echo "Installing Node.js and npm"
+  yum update -y	
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+  . /home/ec2-user/.nvm/nvm.sh
+  nvm install 16
+
+  # Install pm2
+  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/npm install -g pm2@latest
+
+  # Stop pm2 service
+  pm2 kill
+
+  # Install Sequelize CLI globally
+  npm install -g sequelize-cli
+
+  cd /home/ec2-user/webapp
+  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/sequelize-cli db:migrate
+  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/pm2 startup
+  sudo env PATH=$PATH:/home/ec2-user/.nvm/versions/node/v16.19.1/bin /home/ec2-user/.nvm/versions/node/v16.19.1/lib/node_modules/pm2/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user
+
+  # Start pm2 service
+  su ec2-user
+  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/pm2 start server.js
+  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/pm2 save
   EOF
 
   depends_on = [
-    aws_iam_policy.webapp_s3_policy,
-    aws_iam_role.ec2_csye6225_role,
-    aws_iam_instance_profile.ec2_profile,
     aws_db_instance.webapp_pg_instance
   ]
   tags = {
