@@ -29,44 +29,26 @@ resource "aws_instance" "webapp_instance" {
   # Redirect output to a log file
   exec &> /var/log/user-data-logs.log
 
-  cd /home/ec2-user/webapp/config
-  mv config.js config_bak.js
+  echo 'HOST=${aws_db_instance.webapp_pg_instance.address}' >> /home/ec2-user/webapp/.env   
+  echo 'PORT=5432' >> /home/ec2-user/webapp/.env
+  echo 'DB=${var.db_name}' >> /home/ec2-user/webapp/.env
+  echo 'DB_USER=${var.db_username}' >> /home/ec2-user/webapp/.env
+  echo 'PASSWORD=${var.db_password}' >> /home/ec2-user/webapp/.env
+  echo 'S3_BUCKET_NAME=${aws_s3_bucket.webapp_bucket.id}' >> /home/ec2-user/webapp/.env
+  echo 'AWS_S3_REGION=${var.region}' >> /home/ec2-user/webapp/.env
+  echo 'DIALECT=postgres' >> /home/ec2-user/webapp/.env
 
-  echo "export default {
-    host: \"${aws_db_instance.webapp_pg_instance.address}\",
-    port: \"5432\",
-    username: \"${var.db_username}\",
-    password: \"${var.db_password}\",
-    database: \"${var.db_name}\",
-    dialect: \"postgres\",
-    regionS3: \"${var.region}\",
-    s3bucketName: \"${aws_s3_bucket.webapp_bucket.id}\"
-  };" > /home/ec2-user/webapp/config/config.js
-
-  echo "Installing Node.js and npm"
-  yum update -y	
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-  . /home/ec2-user/.nvm/nvm.sh
-  nvm install 16
-
-  # Install pm2
-  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/npm install -g pm2@latest
+  export PATH=$PATH:/home/ec2-user/.nvm/versions/node/v16.19.1/bin
 
   # Stop pm2 service
   pm2 kill
 
-  # Install Sequelize CLI globally
-  npm install -g sequelize-cli
-
   cd /home/ec2-user/webapp
-  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/sequelize-cli db:migrate
-  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/pm2 startup
-  sudo env PATH=$PATH:/home/ec2-user/.nvm/versions/node/v16.19.1/bin /home/ec2-user/.nvm/versions/node/v16.19.1/lib/node_modules/pm2/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user
+  /home/ec2-user/webapp/node_modules/sequelize-cli/lib/sequelize db:migrate
 
-  # Start pm2 service
-  su ec2-user
-  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/pm2 start server.js
-  /home/ec2-user/.nvm/versions/node/v16.19.1/bin/pm2 save
+  sudo systemctl enable pm2-ec2-user
+  sudo systemctl start pm2-ec2-user
+  sudo systemctl status pm2-ec2-user
   EOF
 
   depends_on = [
