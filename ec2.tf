@@ -10,7 +10,7 @@ data "aws_ami" "my_latest_ami" {
 resource "aws_instance" "webapp_instance" {
   ami                  = data.aws_ami.my_latest_ami.id
   instance_type        = var.instance_type
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
   key_name             = var.key_name
   count                = 1
 
@@ -25,7 +25,7 @@ resource "aws_instance" "webapp_instance" {
   disable_api_termination = false
   user_data               = <<EOF
   #!/bin/bash
-   
+  
   # Redirect output to a log file
   exec &> /var/log/user-data-logs.log
 
@@ -38,7 +38,7 @@ resource "aws_instance" "webapp_instance" {
   echo 'AWS_S3_REGION=${var.region}' >> /home/ec2-user/webapp/.env
   echo 'DIALECT=postgres' >> /home/ec2-user/webapp/.env
 
-  export PATH=$PATH:/home/ec2-user/.nvm/versions/node/v16.19.1/bin
+  export PATH=$PATH:/home/ec2-user/.nvm/versions/node/v16.20.0/bin
 
   # Stop pm2 service
   pm2 kill
@@ -49,6 +49,13 @@ resource "aws_instance" "webapp_instance" {
   sudo systemctl enable pm2-ec2-user
   sudo systemctl start pm2-ec2-user
   sudo systemctl status pm2-ec2-user
+
+  # Configuring cloudwatch-agent
+  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config \
+    -m ec2 \
+    -c file:/opt/cloudwatch_config.json \
+    -s
   EOF
 
   depends_on = [
