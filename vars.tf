@@ -144,3 +144,58 @@ variable "db_password" {
 variable "domain_name" {
   type = string
 }
+
+variable "lb_sg_name" {
+  type        = string
+  description = "Security group name for Load Balancer"
+}
+
+variable "aws_lt_name" {
+  type        = string
+  description = "Launch Template Name"
+}
+
+variable "webapp_asg_name" {
+  type        = string
+  description = "Autoscaling Group Name"
+}
+
+variable "webapp_asg_min_size" {
+  type        = number
+  description = "Minimum number of instances in auto-scaling group"
+}
+
+variable "webapp_asg_max_size" {
+  type        = number
+  description = "Maximum number of instances in auto-scaling group"
+}
+
+variable "asg_desired_capacity" {
+  type        = number
+  description = "Number of Amazon EC2 instances that should be running in the group"
+}
+
+variable "asg_cooldown_period" {
+  type        = number
+  description = "Amount of time, in seconds, after a scaling activity completes before another scaling activity can start."
+}
+
+variable "scale_up_policy_name" {
+  type    = string
+  default = "webapp_scale_up_policy"
+}
+
+variable "scale_down_policy_name" {
+  type    = string
+  default = "webapp_scale_down_policy"
+}
+
+variable "scale_up_target" {
+  type        = string
+  description = "Target Value for Average CPU usage while scaling up"
+}
+
+variable "scale_down_target" {
+  type        = string
+  description = "Target Value for Average CPU usage while scaling down"
+}
