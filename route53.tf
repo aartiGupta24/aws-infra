@@ -7,6 +7,10 @@ resource "aws_route53_record" "webapp_route" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = data.aws_route53_zone.main.name
   type    = "A"
-  ttl     = "60"
-  records = [aws_instance.webapp_instance[0].public_ip]
+
+  alias {
+    name                   = aws_lb.webapp_lb.dns_name
+    zone_id                = aws_lb.webapp_lb.zone_id
+    evaluate_target_health = true
+  }
 }

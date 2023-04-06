@@ -1,24 +1,10 @@
-resource "aws_security_group" "webapp_sg" {
-  name   = var.webapp_sg_name
+resource "aws_security_group" "lb_sg" {
+  name   = var.lb_sg_name
   vpc_id = module.vpc.vpc_id
-
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = [var.public_route_cidr]
-  }
 
   ingress {
     from_port   = 80
     to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [var.public_route_cidr]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [var.public_route_cidr]
   }
@@ -38,7 +24,37 @@ resource "aws_security_group" "webapp_sg" {
   }
 
   tags = {
-    Name = "${var.webapp_sg_name}"
+    Name = var.lb_sg_name
+  }
+}
+
+resource "aws_security_group" "webapp_sg" {
+  name   = var.webapp_sg_name
+  vpc_id = module.vpc.vpc_id
+
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.lb_sg.id}"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.public_route_cidr]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [var.public_route_cidr]
+  }
+
+  tags = {
+    Name = var.webapp_sg_name
   }
 }
 
