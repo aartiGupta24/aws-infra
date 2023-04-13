@@ -98,6 +98,9 @@ We are going to start setting up our AWS infrastructure. This assignment will fo
 
 3. Destroy all the resources using - `terraform destroy` command.
 
+## HTTPS and SSL
+- Importing an SSL certificate in ACM - aws acm import-certificate --profile aws-demo --region us-east-1 --certificate fileb://demo_aartigupta_me.crt --private-key fileb://private_key.pem --certificate-chain fileb://demo_aartigupta_me.ca-bundle
+
 
 
 

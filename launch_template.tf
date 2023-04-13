@@ -42,12 +42,16 @@ resource "aws_launch_template" "webapp_ec2_lt" {
       volume_size = var.volume_size
       volume_type = var.volume_type
       encrypted   = true
+      kms_key_id  = aws_kms_key.ebs_key.arn
     }
   }
   disable_api_termination = false
 
   user_data = base64encode(data.template_file.user_data.rendered)
 
+  depends_on = [
+    aws_kms_key.ebs_key
+  ]
   tags = {
     Name = "${var.aws_lt_name}"
   }

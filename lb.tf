@@ -41,3 +41,16 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.webapp_lb_tg.arn
   }
 }
+
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.webapp_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "arn:aws:acm:us-east-1:999859291911:certificate/1c2b90ef-17a1-495d-8fc8-86fcb246565d"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.webapp_lb_tg.arn
+  }
+}
