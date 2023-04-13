@@ -12,7 +12,7 @@ resource "aws_autoscaling_group" "webapp_asg" {
 
   launch_template {
     id      = aws_launch_template.webapp_ec2_lt.id
-    version = "$Latest"
+    version = aws_launch_template.webapp_ec2_lt.latest_version
   }
 
   tag {
@@ -20,6 +20,15 @@ resource "aws_autoscaling_group" "webapp_asg" {
     value               = "webapp"
     propagate_at_launch = true
   }
+
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+    }
+    triggers = ["tag"]
+  }
+
   target_group_arns = [aws_lb_target_group.webapp_lb_tg.arn]
 
   depends_on = [
