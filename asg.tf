@@ -12,7 +12,7 @@ resource "aws_autoscaling_group" "webapp_asg" {
 
   launch_template {
     id      = aws_launch_template.webapp_ec2_lt.id
-    version = aws_launch_template.webapp_ec2_lt.latest_version
+    version = "$Latest"
   }
 
   tag {
