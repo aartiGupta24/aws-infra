@@ -98,8 +98,15 @@ We are going to start setting up our AWS infrastructure. This assignment will fo
 
 3. Destroy all the resources using - `terraform destroy` command.
 
-## HTTPS and SSL
-- Importing an SSL certificate in ACM - aws acm import-certificate --profile aws-demo --region us-east-1 --certificate fileb://demo_aartigupta_me.crt --private-key fileb://private_key.pem --certificate-chain fileb://demo_aartigupta_me.ca-bundle
+## Secure Application Endpoints using SSL
+
+To secure your web application endpoints with valid SSL certificates, we need to import them into `AWS Certificate Manager` from the CLI, and then configure the application load balancer to use the imported certificate.
+
+To import the SSL certificate requested from `Namecheap`, run the following command in the aws-cli - 
+```
+aws acm import-certificate --profile aws-demo --region us-east-1 --certificate fileb://demo_aartigupta_me.crt --private-key fileb://private_key.pem --certificate-chain fileb://demo_aartigupta_me.ca-bundle
+```
+
 
 
 

@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_kms_key" "ebs_key" {
   description             = "KMS Key for EBS Volume"
   enable_key_rotation     = true
@@ -10,7 +12,7 @@ resource "aws_kms_key" "ebs_key" {
         "Sid" : "Enable IAM User Permissions",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : "arn:aws:iam::999859291911:root"
+          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
         "Action" : "kms:*",
         "Resource" : "*"
@@ -20,7 +22,7 @@ resource "aws_kms_key" "ebs_key" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            "arn:aws:iam::999859291911:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
           ]
         },
         "Action" : [
@@ -46,7 +48,7 @@ resource "aws_kms_key" "ebs_key" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            "arn:aws:iam::999859291911:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
           ]
         },
         "Action" : [
@@ -63,7 +65,7 @@ resource "aws_kms_key" "ebs_key" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            "arn:aws:iam::999859291911:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
           ]
         },
         "Action" : [
@@ -99,7 +101,7 @@ resource "aws_kms_key" "rds_key" {
         "Sid" : "Enable IAM User Permissions",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : "arn:aws:iam::999859291911:root"
+          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         },
         "Action" : "kms:*",
         "Resource" : "*"
@@ -109,7 +111,7 @@ resource "aws_kms_key" "rds_key" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            "arn:aws:iam::999859291911:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
           ]
         },
         "Action" : [
@@ -135,7 +137,7 @@ resource "aws_kms_key" "rds_key" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            "arn:aws:iam::999859291911:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
           ]
         },
         "Action" : [
@@ -152,7 +154,7 @@ resource "aws_kms_key" "rds_key" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            "arn:aws:iam::999859291911:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
           ]
         },
         "Action" : [

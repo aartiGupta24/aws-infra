@@ -199,3 +199,8 @@ variable "scale_down_target" {
   type        = string
   description = "Target Value for Average CPU usage while scaling down"
 }
+
+variable "ssl_cert_arn" {
+  type        = string
+  description = "SSL Certificate ARN"
+}
